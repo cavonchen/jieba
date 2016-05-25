@@ -11,6 +11,8 @@ _get_abs_path = jieba._get_abs_path
 
 DEFAULT_IDF = _get_module_path("idf.txt")
 
+#recognise word and numberic in idf.txt
+re_useridf = re.compile('^(.+?) (\d+|\d+\.+\d+)?$', re.U)
 
 class KeywordExtractor(object):
 
@@ -47,7 +49,9 @@ class IDFLoader(object):
             content = open(new_idf_path, 'rb').read().decode('utf-8')
             self.idf_freq = {}
             for line in content.splitlines():
-                word, freq = line.strip().split(' ')
+                word, freq = re_useridf.match(line).groups()
+                if freq is not None:
+                    freq = freq.strip()
                 self.idf_freq[word] = float(freq)
             self.median_idf = sorted(
                 self.idf_freq.values())[len(self.idf_freq) // 2]
